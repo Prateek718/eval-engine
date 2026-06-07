@@ -19,3 +19,6 @@ htmlcov/
 # Editor
 .vscode/
 .idea/
+
+# Corpus: commit the frozen source PDFs (our frozen snapshot), ignore derived artifacts
+data/processed/
