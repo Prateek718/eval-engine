@@ -11,4 +11,6 @@ repos:
       - id: mypy
         args: [--strict]
         files: ^src/
-        additional_dependencies: []
+        additional_dependencies:
+          - pydantic
+          - pdfplumber

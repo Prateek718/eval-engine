@@ -4,7 +4,10 @@ version = "0.1.0"
 description = "Continuous, automated, production-grade evaluation of an agentic-RAG system."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2.9.0",
+    "pdfplumber>=0.11.0",
+]
 
 [dependency-groups]
 dev = [
