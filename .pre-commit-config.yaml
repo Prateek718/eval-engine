@@ -14,3 +14,6 @@ repos:
         additional_dependencies:
           - pydantic
           - pdfplumber
+          - pydantic-settings
+          - qdrant-client
+          - google-genai
