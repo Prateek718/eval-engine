@@ -33,6 +33,7 @@ class Embedder(Protocol):
     dim: int
 
     def embed_documents(self, texts: list[str]) -> list[list[float]]: ...
+    def embed_query(self, text: str) -> list[float]: ...
 
 
 class GeminiEmbedder:
@@ -70,3 +71,23 @@ class GeminiEmbedder:
                     raise RuntimeError("Gemini returned an embedding with no values")
                 vectors.append(l2_normalize(list(e.values)))
         return vectors
+
+    def embed_query(self, text: str) -> list[float]:
+        """Embed a search query. Uses RETRIEVAL_QUERY (not RETRIEVAL_DOCUMENT):
+        queries and documents are embedded into aligned-but-distinct subspaces,
+        which improves retrieval over using one task type for both.
+        """
+        from google.genai import types
+
+        result = self._client.models.embed_content(
+            model=self._model,
+            contents=[text],  # type: ignore[arg-type]  # SDK union doesn't list[str] cleanly
+            config=types.EmbedContentConfig(
+                output_dimensionality=self.dim,
+                task_type="RETRIEVAL_QUERY",
+            ),
+        )
+        embeddings = result.embeddings or []
+        if not embeddings or embeddings[0].values is None:
+            raise RuntimeError("Gemini returned no query embedding")
+        return l2_normalize(list(embeddings[0].values))
