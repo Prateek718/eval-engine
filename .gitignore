@@ -22,3 +22,6 @@ htmlcov/
 
 # Corpus: commit the frozen source PDFs (our frozen snapshot), ignore derived artifacts
 data/processed/
+
+# Qdrant embedded local-file storage (derived; regenerable by re-running indexing)
+qdrant_data/
