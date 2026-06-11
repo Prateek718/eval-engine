@@ -17,3 +17,6 @@ repos:
           - pydantic-settings
           - qdrant-client
           - google-genai
+          - langgraph
+          - langchain-google-genai
+          - langchain-core

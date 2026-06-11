@@ -1,0 +1,42 @@
+{
+  "schema_version": "1",
+  "currency": "INR",
+  "policies": [
+    {
+      "policy_id": "POL-A",
+      "product_name": "Essential Health 3L",
+      "sum_insured": 300000,
+      "ped_waiting_months": 36,
+      "room_rent_cap_per_day": 3000,
+      "specific_waiting_periods": [
+        { "condition": "cataract", "waiting_months": 24 },
+        { "condition": "hernia", "waiting_months": 24 }
+      ],
+      "sub_limits": [
+        { "procedure": "cataract", "cap_per_eye": 30000 }
+      ]
+    },
+    {
+      "policy_id": "POL-B",
+      "product_name": "Secure Health 5L",
+      "sum_insured": 500000,
+      "ped_waiting_months": 24,
+      "room_rent_cap_per_day": 5000,
+      "specific_waiting_periods": [
+        { "condition": "cataract", "waiting_months": 24 }
+      ],
+      "sub_limits": [
+        { "procedure": "cataract", "cap_per_eye": 40000 }
+      ]
+    },
+    {
+      "policy_id": "POL-C",
+      "product_name": "Premier Health 10L",
+      "sum_insured": 1000000,
+      "ped_waiting_months": 36,
+      "room_rent_cap_per_day": null,
+      "specific_waiting_periods": [],
+      "sub_limits": []
+    }
+  ]
+}
