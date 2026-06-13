@@ -1,0 +1,191 @@
+{
+  "schema_version": "1",
+  "claims": [
+    {
+      "claim_id": "C01",
+      "policy_id": "POL-A",
+      "claim_text": "Cataract surgery on the right eye. Hospital billed Rs 50,000. Policy has been active for 2 years.",
+      "mechanism": "cataract sub-limit, wait met (POL-A 30k cap)"
+    },
+    {
+      "claim_id": "C02",
+      "policy_id": "POL-B",
+      "claim_text": "Cataract surgery on the right eye. Hospital billed Rs 50,000. Policy has been active for 2 years.",
+      "mechanism": "cataract sub-limit, wait met (POL-B 40k cap) - cross-policy contrast with C01"
+    },
+    {
+      "claim_id": "C03",
+      "policy_id": "POL-C",
+      "claim_text": "Cataract surgery on the right eye. Hospital billed Rs 50,000. Policy has been active for 2 years.",
+      "mechanism": "cataract not named in POL-C -> no specific wait, no sub-limit -> payable in full"
+    },
+    {
+      "claim_id": "C04",
+      "policy_id": "POL-A",
+      "claim_text": "Cataract surgery on the left eye. Hospital billed Rs 25,000. Policy has been active for 3 years.",
+      "mechanism": "cataract claim under the 30k cap -> payable in full (not partial)"
+    },
+    {
+      "claim_id": "C05",
+      "policy_id": "POL-A",
+      "claim_text": "Cataract surgery on the right eye. Hospital billed Rs 45,000. Policy was purchased 10 months ago.",
+      "mechanism": "cataract wait NOT met (24mo wait, policy 10mo) -> denied"
+    },
+    {
+      "claim_id": "C06",
+      "policy_id": "POL-B",
+      "claim_text": "Cataract surgery on both eyes. Hospital billed Rs 90,000 total. Policy active for 3 years.",
+      "mechanism": "cataract both eyes, per-eye cap (40k/eye) -> partial 80k"
+    },
+    {
+      "claim_id": "C07",
+      "policy_id": "POL-A",
+      "claim_text": "Hospitalisation for diabetes management. Diabetes was disclosed as pre-existing at policy purchase. Policy is 30 months old. Bill Rs 80,000.",
+      "mechanism": "PED wait NOT met (POL-A 36mo, policy 30mo) -> denied"
+    },
+    {
+      "claim_id": "C08",
+      "policy_id": "POL-B",
+      "claim_text": "Hospitalisation for diabetes management. Diabetes was disclosed as pre-existing at policy purchase. Policy is 30 months old. Bill Rs 80,000.",
+      "mechanism": "PED wait MET (POL-B 24mo, policy 30mo) -> payable - cross-policy contrast with C07"
+    },
+    {
+      "claim_id": "C09",
+      "policy_id": "POL-C",
+      "claim_text": "Hospitalisation for diabetes management. Diabetes was disclosed as pre-existing at policy purchase. Policy is 30 months old. Bill Rs 80,000.",
+      "mechanism": "PED wait NOT met (POL-C 36mo, policy 30mo) -> denied - contrast with C08"
+    },
+    {
+      "claim_id": "C10",
+      "policy_id": "POL-A",
+      "claim_text": "Hospitalisation for hypertension complications, disclosed as pre-existing. Policy is 40 months old. Bill Rs 60,000.",
+      "mechanism": "PED wait MET (36mo wait, policy 40mo) -> payable in full"
+    },
+    {
+      "claim_id": "C11",
+      "policy_id": "POL-A",
+      "claim_text": "Hernia repair surgery. Policy active for 18 months. Bill Rs 70,000.",
+      "mechanism": "hernia named in POL-A, 24mo wait NOT met (18mo) -> denied"
+    },
+    {
+      "claim_id": "C12",
+      "policy_id": "POL-B",
+      "claim_text": "Hernia repair surgery. Policy active for 18 months. Bill Rs 70,000.",
+      "mechanism": "hernia NOT named in POL-B -> no specific wait -> payable - contrast with C10"
+    },
+    {
+      "claim_id": "C13",
+      "policy_id": "POL-A",
+      "claim_text": "Hernia repair surgery. Policy active for 3 years. Bill Rs 70,000.",
+      "mechanism": "hernia named POL-A, 24mo wait MET (3yr) -> payable in full (no sub-limit on hernia)"
+    },
+    {
+      "claim_id": "C14",
+      "policy_id": "POL-A",
+      "claim_text": "Emergency hospitalisation for appendicitis surgery. Policy active for 1 year. Bill Rs 1,20,000.",
+      "mechanism": "no PED, no specific wait, under sum insured -> payable in full (baseline)"
+    },
+    {
+      "claim_id": "C15",
+      "policy_id": "POL-A",
+      "claim_text": "Hospitalisation for severe pneumonia. Policy active for 14 months. Bill Rs 2,00,000.",
+      "mechanism": "plain payable baseline, under 3L sum insured"
+    },
+    {
+      "claim_id": "C16",
+      "policy_id": "POL-A",
+      "claim_text": "Major cardiac surgery following heart attack. Policy active for 2 years, no pre-existing conditions disclosed. Bill Rs 4,50,000.",
+      "mechanism": "claim exceeds POL-A sum insured (3L) -> partial capped at 300000"
+    },
+    {
+      "claim_id": "C17",
+      "policy_id": "POL-B",
+      "claim_text": "Major cardiac surgery following heart attack. Policy active for 2 years, no pre-existing conditions. Bill Rs 4,50,000.",
+      "mechanism": "claim under POL-B sum insured (5L) -> payable in full - contrast with C15"
+    },
+    {
+      "claim_id": "C18",
+      "policy_id": "POL-C",
+      "claim_text": "Major cardiac surgery. Policy active for 2 years. Bill Rs 4,50,000.",
+      "mechanism": "well under POL-C sum insured (10L) -> payable in full"
+    },
+    {
+      "claim_id": "C19",
+      "policy_id": "POL-A",
+      "claim_text": "Treatment for an ailment arising from a congenital external condition. Policy active for 4 years. Bill Rs 90,000.",
+      "mechanism": "permanent exclusion territory -> denied (tests exclusion-clause retrieval)"
+    },
+    {
+      "claim_id": "C20",
+      "policy_id": "POL-B",
+      "claim_text": "Cosmetic surgery to improve appearance, not medically necessary. Policy active for 5 years. Bill Rs 1,50,000.",
+      "mechanism": "excluded (cosmetic) -> denied"
+    },
+    {
+      "claim_id": "C21",
+      "policy_id": "POL-A",
+      "claim_text": "Hospitalisation for injuries from a road traffic accident. Policy purchased 15 days ago. Bill Rs 1,10,000.",
+      "mechanism": "accident exempt from initial waiting period -> payable (tests accident carve-out)"
+    },
+    {
+      "claim_id": "C22",
+      "policy_id": "POL-A",
+      "claim_text": "Routine outpatient consultation for a common cold. No hospitalisation. Bill Rs 800.",
+      "mechanism": "OPD / no hospitalisation -> likely denied under indemnity hospitalisation cover"
+    },
+    {
+      "claim_id": "C23",
+      "policy_id": "POL-B",
+      "claim_text": "Cataract surgery on the left eye. Hospital billed Rs 38,000. Policy active for 3 years.",
+      "mechanism": "cataract under POL-B 40k cap -> payable in full (duplicate mechanism, stability)"
+    },
+    {
+      "claim_id": "C24",
+      "policy_id": "POL-A",
+      "claim_text": "Cataract surgery on the right eye. Hospital billed Rs 1,00,000. Policy active for 5 years.",
+      "mechanism": "cataract far over 30k cap -> partial 30000 (stability duplicate of C01)"
+    },
+    {
+      "claim_id": "C25",
+      "policy_id": "POL-C",
+      "claim_text": "Cataract surgery on both eyes. Hospital billed Rs 1,20,000. Policy active for 2 years.",
+      "mechanism": "cataract not named POL-C, under 10L SI -> payable in full"
+    },
+    {
+      "claim_id": "C26",
+      "policy_id": "POL-B",
+      "claim_text": "Hospitalisation for kidney stone removal, disclosed pre-existing. Policy is 20 months old. Bill Rs 75,000.",
+      "mechanism": "PED wait NOT met (POL-B 24mo, policy 20mo) -> denied (PED stability duplicate)"
+    },
+    {
+      "claim_id": "C27",
+      "policy_id": "POL-A",
+      "claim_text": "Hospitalisation for asthma, disclosed pre-existing at purchase. Policy is 4 years old. Bill Rs 50,000.",
+      "mechanism": "PED wait MET (36mo, policy 4yr) -> payable (PED satisfied duplicate)"
+    },
+    {
+      "claim_id": "C28",
+      "policy_id": "POL-C",
+      "claim_text": "Knee replacement surgery. Policy active for 1 year, no pre-existing. Bill Rs 3,50,000.",
+      "mechanism": "no restriction under POL-C, under 10L SI -> payable in full"
+    },
+    {
+      "claim_id": "C29",
+      "policy_id": "POL-Z",
+      "claim_text": "Cataract surgery. Bill Rs 40,000.",
+      "mechanism": "unknown policy id -> graceful handling (negative case)"
+    },
+    {
+      "claim_id": "C30",
+      "policy_id": "POL-A",
+      "claim_text": "asdf qwerty zxcv plkjh 12345 mnbv. Bill Rs 60,000.",
+      "mechanism": "nonsense claim -> graceful denial/flag (robustness negative case)"
+    },
+    {
+      "claim_id": "C31",
+      "policy_id": "POL-B",
+      "claim_text": "Hospitalisation for treatment of complications. Bill Rs 1,40,000. The policyholder committed established fraud in the application.",
+      "mechanism": "fraud -> denied regardless of moratorium (tests fraud exception)"
+    }
+  ]
+}

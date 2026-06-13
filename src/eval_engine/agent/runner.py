@@ -5,6 +5,7 @@ Like the embedder, the LangChain/Gemini SDK is imported lazily so the module
 """
 
 import json
+from collections.abc import Callable
 from typing import Any
 
 from langchain_core.messages import AIMessage, AnyMessage
@@ -47,7 +48,13 @@ class GeminiChatModel:
     def __init__(self, api_key: str, model: str) -> None:
         from langchain_google_genai import ChatGoogleGenerativeAI
 
-        base = ChatGoogleGenerativeAI(model=model, google_api_key=api_key, temperature=0)
+        base = ChatGoogleGenerativeAI(
+            model=model,
+            google_api_key=api_key,
+            temperature=0,
+            timeout=60,
+            max_retries=2,
+        )
         self._with_tools = base.bind_tools(_TOOL_SCHEMAS)
         self._structured = base.with_structured_output(Adjudication, method="json_schema")
 
@@ -87,9 +94,13 @@ def make_tool_caller(
     return call
 
 
-def adjudicate(claim: str, policy_id: str, settings: Settings) -> AgentState:
-    """Run the agent on one claim with real Gemini + Qdrant. Returns the final
-    state (decision in .result, trajectory in .tool_calls_made / .retrieved_chunk_ids).
+def build_agent(settings: Settings) -> Callable[[str, str], AgentState]:
+    """Construct the agent rig once and return a per-claim runner.
+
+    The Qdrant client, embedder, model, and compiled graph are built a single
+    time and reused across claims. In embedded Qdrant mode this matters: each
+    client holds an exclusive file lock, so reconstructing per claim risks lock
+    contention if a prior call left a client uncollected.
     """
     embedder: Embedder = GeminiEmbedder(
         api_key=settings.gemini_api_key,
@@ -100,7 +111,17 @@ def adjudicate(claim: str, policy_id: str, settings: Settings) -> AgentState:
     schedule = load_schedule()
     model = GeminiChatModel(api_key=settings.gemini_api_key, model="gemini-2.5-flash")
     tool_caller = make_tool_caller(embedder, client, settings.qdrant_collection, schedule)
-
     app = build_graph(model, tool_caller)
-    final = app.invoke(initial_state(claim, policy_id))
-    return AgentState(**final)
+
+    def run(claim: str, policy_id: str) -> AgentState:
+        final = app.invoke(initial_state(claim, policy_id))
+        return AgentState(**final)
+
+    return run
+
+
+def adjudicate(claim: str, policy_id: str, settings: Settings) -> AgentState:
+    """Run the agent on one claim with real Gemini + Qdrant. Returns the final
+    state (decision in .result, trajectory in .tool_calls_made / .retrieved_chunk_ids).
+    """
+    return build_agent(settings)(claim, policy_id)
