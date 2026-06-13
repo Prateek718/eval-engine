@@ -94,14 +94,19 @@ def make_tool_caller(
     return call
 
 
-def build_agent(settings: Settings) -> Callable[[str, str], AgentState]:
+def build_agent(settings: Settings, model: str | None = None) -> Callable[[str, str], AgentState]:
     """Construct the agent rig once and return a per-claim runner.
 
     The Qdrant client, embedder, model, and compiled graph are built a single
     time and reused across claims. In embedded Qdrant mode this matters: each
     client holds an exclusive file lock, so reconstructing per claim risks lock
     contention if a prior call left a client uncollected.
+
+    ``model`` overrides ``settings.agent_model`` for one build, isolating the
+    model as the sole variable in an A/B comparison; callers that don't pass it
+    get the configured target.
     """
+
     embedder: Embedder = GeminiEmbedder(
         api_key=settings.gemini_api_key,
         model=settings.embedding_model,
@@ -109,9 +114,10 @@ def build_agent(settings: Settings) -> Callable[[str, str], AgentState]:
     )
     client = make_client(settings)
     schedule = load_schedule()
-    model = GeminiChatModel(api_key=settings.gemini_api_key, model="gemini-2.5-flash")
+    model_id = model or settings.agent_model
+    chat_model = GeminiChatModel(api_key=settings.gemini_api_key, model=model_id)
     tool_caller = make_tool_caller(embedder, client, settings.qdrant_collection, schedule)
-    app = build_graph(model, tool_caller)
+    app = build_graph(chat_model, tool_caller)
 
     def run(claim: str, policy_id: str) -> AgentState:
         final = app.invoke(initial_state(claim, policy_id))
