@@ -30,6 +30,13 @@ class Settings(BaseSettings):
     qdrant_url: str = Field(default="", description="Qdrant server URL; overrides path when set")
     qdrant_collection: str = Field(default="irdai_corpus")
 
+    # --- Agent ---
+    # The grading target's model. Centralised here (not hardcoded in the
+    # runner) for two reasons: gemini-2.5-flash retires 2026-10-16, so the
+    # migration is a config change; and it's the single variable exposed for
+    # A/B model comparison.
+    agent_model: str = Field(default="gemini-2.5-flash")
+
 
 def get_settings() -> Settings:
     """Construct settings from the environment. Kept as a function so tests
