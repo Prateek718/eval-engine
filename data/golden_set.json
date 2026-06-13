@@ -1,0 +1,378 @@
+{
+  "schema_version": "1",
+  "labels": [
+    {
+      "claim_id": "C01",
+      "decision": "partial",
+      "payable_amount": 30000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Policy active 24 months, satisfying the 24-month cataract waiting period. Bill of Rs 50,000 is reduced to the policy's cataract sub-limit of Rs 30,000 per eye.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C02",
+      "decision": "partial",
+      "payable_amount": 40000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Policy active 24 months, satisfying the 24-month cataract waiting period. Bill of Rs 50,000 is reduced to the policy's cataract sub-limit of Rs 40,000 per eye.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C03",
+      "decision": "payable",
+      "payable_amount": 50000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "POL-C names no specific waiting period or sub-limit for cataract. Bill of Rs 50,000 is within the sum insured of Rs 10,00,000 and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C04",
+      "decision": "payable",
+      "payable_amount": 25000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Policy active 36 months, satisfying the 24-month cataract waiting period. Bill of Rs 25,000 is below the Rs 30,000 cataract sub-limit and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C05",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Cataract has a 24-month waiting period under POL-A. The policy is 10 months old, so the waiting period is not met and the claim is denied.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C06",
+      "decision": "partial",
+      "payable_amount": 80000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Policy active 36 months, satisfying the cataract waiting period. Bilateral cataract; the Rs 40,000 per-eye sub-limit caps payment at Rs 80,000 against a Rs 90,000 bill.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C07",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [
+        "2020-S1-CHI-P10-C33"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "Diabetes was disclosed as pre-existing. POL-A applies a 36-month PED waiting period; the policy is 30 months old, so the claim is denied under the pre-existing disease definition.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C08",
+      "decision": "payable",
+      "payable_amount": 80000,
+      "governing_clauses": [
+        "2020-S1-CHI-P10-C33"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "Diabetes was disclosed as pre-existing. POL-B applies a 24-month PED waiting period; the policy is 30 months old, so the waiting period is met. Bill of Rs 80,000 is within the sum insured and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C09",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [
+        "2020-S1-CHI-P10-C33"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "Diabetes was disclosed as pre-existing. POL-C applies a 36-month PED waiting period; the policy is 30 months old, so the claim is denied under the pre-existing disease definition.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C10",
+      "decision": "payable",
+      "payable_amount": 60000,
+      "governing_clauses": [
+        "2020-S1-CHI-P10-C33"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "Hypertension was disclosed as pre-existing. POL-A applies a 36-month PED waiting period; the policy is 40 months old, so the waiting period is met. Bill of Rs 60,000 is within the sum insured and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C11",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Hernia has a 24-month waiting period under POL-A. The policy is 18 months old, so the waiting period is not met and the claim is denied.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C12",
+      "decision": "payable",
+      "payable_amount": 70000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "POL-B names a specific waiting period only for cataract, not hernia. With no applicable waiting period or sub-limit, the Rs 70,000 bill is within the sum insured and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C13",
+      "decision": "payable",
+      "payable_amount": 70000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Hernia has a 24-month waiting period under POL-A. The policy is 36 months old, so the waiting period is met. Bill of Rs 70,000 is within the sum insured and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C14",
+      "decision": "payable",
+      "payable_amount": 120000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Appendicitis is not subject to any waiting period or sub-limit under POL-A and is not pre-existing. Bill of Rs 1,20,000 is within the sum insured of Rs 3,00,000 and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C15",
+      "decision": "payable",
+      "payable_amount": 200000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Pneumonia is not subject to any waiting period or sub-limit under POL-A. Bill of Rs 2,00,000 is within the sum insured of Rs 3,00,000 and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C16",
+      "decision": "partial",
+      "payable_amount": 300000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "No waiting period or pre-existing condition applies to the cardiac claim. The Rs 4,50,000 bill exceeds the POL-A sum insured of Rs 3,00,000, so payment is capped at the sum insured.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C17",
+      "decision": "payable",
+      "payable_amount": 450000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "No waiting period or pre-existing condition applies. The Rs 4,50,000 bill is within the POL-B sum insured of Rs 5,00,000 and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C18",
+      "decision": "payable",
+      "payable_amount": 450000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "No waiting period or pre-existing condition applies. The Rs 4,50,000 bill is within the POL-C sum insured of Rs 10,00,000 and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C19",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [
+        "2020-S1-CHI-P5-C5"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "The ailment arises from an external congenital anomaly, defined under the congenital anomaly clause as one in the visible and accessible parts of the body. External congenital anomalies are excluded, so the claim is denied.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C20",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [
+        "2020-S1-CHI-P9-C27"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "The surgery is cosmetic and stated to be not medically necessary. Coverage is restricted to medically necessary treatment, so the claim is denied.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C21",
+      "decision": "payable",
+      "payable_amount": 110000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Hospitalisation follows a road traffic accident. No waiting period or sub-limit applies to the accidental injury, and the Rs 1,10,000 bill is within the sum insured, so the claim is fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C22",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [
+        "2020-S1-CHI-P8-C17",
+        "2020-S1-CHI-P10-C32"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "The consultation is OPD treatment with no hospitalisation. Cover requires inpatient hospitalisation of at least 24 hours (or a specified day care procedure); OPD treatment is not covered, so the claim is denied.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C23",
+      "decision": "payable",
+      "payable_amount": 38000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Policy active 36 months, satisfying the cataract waiting period. Bill of Rs 38,000 is within the Rs 40,000 cataract sub-limit and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C24",
+      "decision": "partial",
+      "payable_amount": 30000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Policy active 60 months, satisfying the cataract waiting period. Bill of Rs 1,00,000 is reduced to the Rs 30,000 cataract sub-limit per eye.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C25",
+      "decision": "payable",
+      "payable_amount": 120000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "POL-C names no specific waiting period or sub-limit for cataract. Bill of Rs 1,20,000 is within the sum insured of Rs 10,00,000 and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C26",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [
+        "2020-S1-CHI-P10-C33"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "Kidney stone was disclosed as pre-existing. POL-B applies a 24-month PED waiting period; the policy is 20 months old, so the claim is denied under the pre-existing disease definition.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C27",
+      "decision": "payable",
+      "payable_amount": 50000,
+      "governing_clauses": [
+        "2020-S1-CHI-P10-C33"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "Asthma was disclosed as pre-existing. POL-A applies a 36-month PED waiting period; the policy is 48 months old, so the waiting period is met. Bill of Rs 50,000 is within the sum insured and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C28",
+      "decision": "payable",
+      "payable_amount": 350000,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "Knee replacement is not subject to any waiting period or sub-limit under POL-C and is not pre-existing. Bill of Rs 3,50,000 is within the sum insured of Rs 10,00,000 and fully payable.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C29",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "POL-Z is not a policy in the schedule. The claim cannot be adjudicated against policy terms and is denied.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C30",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [],
+      "expected_tool_calls": [
+        "lookup_policy"
+      ],
+      "reasoning": "The claim text contains no identifiable illness, injury, treatment, or adjudicable content, so the claim is denied.",
+      "reviewed": true
+    },
+    {
+      "claim_id": "C31",
+      "decision": "denied",
+      "payable_amount": 0,
+      "governing_clauses": [
+        "2020-S1-CHI-P7-C12",
+        "2024-CHI-P8-C13"
+      ],
+      "expected_tool_calls": [
+        "lookup_policy",
+        "retrieve_regulations"
+      ],
+      "reasoning": "Established fraud in the application renders the policy void under the disclosure norm. Fraud is also the express exception that permits contesting a claim after the moratorium period, so the claim is denied.",
+      "reviewed": true
+    }
+  ]
+}

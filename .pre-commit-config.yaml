@@ -20,3 +20,5 @@ repos:
           - langgraph
           - langchain-google-genai
           - langchain-core
+          - ragas
+          - langchain-community
