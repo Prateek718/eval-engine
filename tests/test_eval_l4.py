@@ -33,8 +33,7 @@ def _policies(text: str) -> set[str]:
 
 
 _CLAIM = (
-    "Cataract surgery on the right eye. Hospital billed Rs 50,000. "
-    "Policy POL-A active for 2 years."
+    "Cataract surgery on the right eye. Hospital billed Rs 50,000. Policy POL-A active for 2 years."
 )
 
 
