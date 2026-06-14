@@ -1,11 +1,15 @@
-"""Run L1 output-quality scoring over the golden set with the live agent.
+"""Run the eval layers over the golden set with the live agent.
 
-Runs the agent on each claim, maps retrieved chunk ids to clause texts, scores
-the three Ragas metrics against the reviewed golden labels, and prints aggregates.
+One agent pass per claim feeds every layer, so all scores describe the same
+(non-deterministic) execution and bond to one trace:
+
+- L1 output quality (Ragas): faithfulness, answer relevancy, context precision.
+- L2 trajectory: tool precision/recall and step overage against the golden
+  ``expected_tool_calls``.
 
 Run locally with a real GEMINI_API_KEY:
 
-    uv run python scripts/run_l1.py
+    uv run python scripts/run_eval.py
 """
 
 import asyncio
@@ -16,6 +20,8 @@ from eval_engine.agent.tools import lookup_policy
 from eval_engine.config import get_settings
 from eval_engine.eval import AgentOutput, RagasScorer, load_golden_set, run_l1
 from eval_engine.eval.golden import claims_by_id
+from eval_engine.eval.l2_trajectory import TrajectoryInput
+from eval_engine.eval.runner import run_l2
 from eval_engine.ingestion import parse_corpus
 from eval_engine.observability.tracing import build_tracer
 
@@ -39,6 +45,7 @@ def main() -> None:
     schedule = load_schedule()
 
     outputs: list[AgentOutput] = []
+    trajectories: list[TrajectoryInput] = []
     failures: list[tuple[str, str]] = []
     for claim_id, claim in claims.items():
         try:
@@ -51,6 +58,8 @@ def main() -> None:
             failures.append((claim_id, "no result"))
             print(f"{claim_id}: agent produced no result, skipping")
             continue
+        # Both inputs are built from the same state and the same trace_id, so L1
+        # and L2 grade one execution and their scores land on one trace.
         outputs.append(
             AgentOutput(
                 claim_id=claim_id,
@@ -64,6 +73,15 @@ def main() -> None:
                 trace_id=state.trace_id,
             )
         )
+        trajectories.append(
+            TrajectoryInput(
+                claim_id=claim_id,
+                tools_used=state.tools_used,
+                tool_calls_made=state.tool_calls_made,
+                expected_tool_calls=labels[claim_id].expected_tool_calls,
+                trace_id=state.trace_id,
+            )
+        )
         print(f"scored agent run for {claim_id}: {state.result.decision.value}")
 
     scorer = RagasScorer(api_key=settings.gemini_api_key)
@@ -74,6 +92,13 @@ def main() -> None:
     print(f"faithfulness:      {result.mean_faithfulness:.3f}")
     print(f"answer_relevancy:  {result.mean_answer_relevancy:.3f}")
     print(f"context_precision: {result.mean_context_precision:.3f}")
+
+    l2 = run_l2(trajectories, tracer=tracer)
+    print("\n=== L2 trajectory (means over golden set) ===")
+    print(f"tool_precision: {l2.mean_tool_precision:.3f}")
+    print(f"tool_recall:    {l2.mean_tool_recall:.3f}")
+    print(f"step_overage:   {l2.mean_step_overage:.3f}")
+
     print(f"\nscored {len(outputs)} of {len(claims)} claims", end="")
     if failures:
         print(f"; {len(failures)} failed: {failures}")
