@@ -56,6 +56,7 @@ class AgentState:
     messages: Annotated[list[AnyMessage], add_messages] = field(default_factory=list)
     tool_calls_made: int = 0
     retrieved_chunk_ids: list[str] = field(default_factory=list)
+    tools_used: list[str] = field(default_factory=list)  # tool names called, in order, with repeats
     result: Adjudication | None = None
     trace_id: str | None = None  # the Langfuse trace this run logged under, if traced
 
@@ -94,15 +95,18 @@ def build_graph(
         assert isinstance(last, AIMessage)
         tool_messages: list[AnyMessage] = []
         new_chunk_ids: list[str] = []
+        new_tool_names: list[str] = []
         for call in last.tool_calls:
             result = tool_caller(call["name"], call["args"])
             tool_messages.append(ToolMessage(content=result, tool_call_id=call["id"]))
+            new_tool_names.append(call["name"])
             if call["name"] == "retrieve_regulations":
                 new_chunk_ids.extend(_chunk_ids_from(result))
         return {
             "messages": tool_messages,
             "tool_calls_made": state.tool_calls_made + len(last.tool_calls),
             "retrieved_chunk_ids": state.retrieved_chunk_ids + new_chunk_ids,
+            "tools_used": state.tools_used + new_tool_names,
         }
 
     def finalize(state: AgentState) -> dict[str, Any]:

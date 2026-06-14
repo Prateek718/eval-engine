@@ -16,6 +16,12 @@ from eval_engine.eval.l1_output_quality import (
     answer_to_text,
     label_to_reference,
 )
+from eval_engine.eval.l2_trajectory import (
+    L2Result,
+    TrajectoryInput,
+    aggregate,
+    score_trajectory,
+)
 from eval_engine.observability.tracing import NullTracer, Score, Tracer
 
 
@@ -92,3 +98,30 @@ async def run_l1(
         mean_answer_relevancy=mean("answer_relevancy"),
         mean_context_precision=mean("context_precision"),
     )
+
+
+def run_l2(
+    inputs: list[TrajectoryInput],
+    tracer: Tracer | None = None,
+) -> L2Result:
+    """Score each run's tool trajectory and bond the scores to its trace.
+
+    Pure and synchronous: trajectory scoring is set arithmetic over tool names,
+    no LLM and no network (unlike L1's Ragas path). The only side effect is
+    writing scores onto traces when a trace_id is present.
+    """
+    active_tracer: Tracer = tracer or NullTracer()
+    per_claim = {}
+    for item in inputs:
+        scores = score_trajectory(item)
+        per_claim[item.claim_id] = scores
+        if item.trace_id:
+            active_tracer.write_scores(
+                item.trace_id,
+                [
+                    Score("tool_precision", scores.tool_precision),
+                    Score("tool_recall", scores.tool_recall),
+                    Score("step_overage", float(scores.step_overage)),
+                ],
+            )
+    return aggregate(per_claim)
