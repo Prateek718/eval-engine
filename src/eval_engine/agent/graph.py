@@ -57,6 +57,7 @@ class AgentState:
     tool_calls_made: int = 0
     retrieved_chunk_ids: list[str] = field(default_factory=list)
     result: Adjudication | None = None
+    trace_id: str | None = None  # the Langfuse trace this run logged under, if traced
 
 
 class ToolCaller(Protocol):
