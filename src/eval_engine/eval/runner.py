@@ -1,14 +1,27 @@
-"""Run L1 output-quality scoring over a set of adjudications.
+"""Score adjudications across the eval layers and bond results to traces.
 
-Builds a ScoreInput per claim from the agent's output, the golden label, and the
-clause texts the agent retrieved, then scores and aggregates. When a run carries
-a trace_id, its three L1 scores are bonded onto that Langfuse trace.
+Three layers live here, each scoring the same agent runs from a different angle:
+
+- run_l1: output quality via Ragas (faithfulness, answer relevancy, context
+  precision). Async -- the metrics are LLM-judged, so it is I/O-bound on the
+  evaluator model.
+- run_l2: tool-trajectory precision/recall and step overage against the golden
+  expected_tool_calls. Pure and synchronous -- set arithmetic, no network.
+- run_l4: decision stability under input perturbation. Drives its own agent
+  runs over perturbed claims (injected run_agent), so it is heavier than L1/L2
+  and lives behind its own script.
+
+Each layer writes its scores onto the run's Langfuse trace when a trace_id is
+present, and is a no-op on tracing when it is absent.
 """
 
+import hashlib
 import statistics
+from collections.abc import Callable
 from dataclasses import dataclass
 
-from eval_engine.eval.golden import GoldenLabel
+from eval_engine.agent.graph import AgentState
+from eval_engine.eval.golden import Claim, GoldenLabel
 from eval_engine.eval.l1_output_quality import (
     OutputQualityScorer,
     OutputQualityScores,
@@ -22,6 +35,7 @@ from eval_engine.eval.l2_trajectory import (
     aggregate,
     score_trajectory,
 )
+from eval_engine.eval.l4_robustness import AXES, perturb
 from eval_engine.observability.tracing import NullTracer, Score, Tracer
 
 
@@ -125,3 +139,89 @@ def run_l2(
                 ],
             )
     return aggregate(per_claim)
+
+
+@dataclass
+class AxisStability:
+    """Per-axis robustness reading over the golden set."""
+
+    decision_stability: float  # fraction of perturbations preserving the golden decision
+    amount_stability: float  # fraction preserving decision AND exact amount
+    n: int  # perturbations attempted on this axis (one per claim, minus agent failures)
+
+
+@dataclass
+class L4Result:
+    per_axis: dict[str, AxisStability]
+    mean_decision_stability: float  # over all axes
+    mean_amount_stability: float
+
+
+def run_l4(
+    claims: dict[str, Claim],
+    labels: dict[str, GoldenLabel],
+    run_agent: Callable[[str, str, str], AgentState],
+    tracer: Tracer | None = None,
+    seed: int = 0,
+) -> L4Result:
+    """Perturb each claim along each axis, re-run the agent, and check the
+    adjudication held against the golden label.
+
+    The agent is injected (not built here): L4 reuses the one rig the script
+    built, and the scoring is testable offline with a stub run_agent. The bar is
+    strict -- decision AND exact amount must match the golden label -- but
+    decision- and amount-stability are reported separately so a payout that
+    drifts while the decision holds is visible, not blended into one number.
+
+    seed makes the run reproducible: perturbations are keyed by (claim, axis,
+    seed), so the same seed reproduces the same perturbed inputs.
+    """
+    active_tracer: Tracer = tracer or NullTracer()
+    per_axis: dict[str, AxisStability] = {}
+
+    for axis in AXES:
+        decision_hits = 0
+        amount_hits = 0
+        n = 0
+        for claim_id, claim in claims.items():
+            label = labels[claim_id]
+            # stable per-(claim, axis) seed: hashlib (not built-in hash, which is
+            # randomized per process) so perturbations reproduce across runs, and
+            # distinct across axes so one claim is not perturbed identically by all.
+            digest = hashlib.md5(f"{claim_id}:{axis}".encode()).hexdigest()
+            claim_seed = seed + int(digest, 16) % 10_000
+            perturbed = perturb(claim.claim_text, axis, claim_seed)
+            try:
+                state = run_agent(perturbed, claim.policy_id, claim_id)
+            except Exception:  # transient agent/API error: skip this perturbation
+                continue
+            if state.result is None:
+                continue
+            n += 1
+            decision_ok = state.result.decision.value == label.decision.value
+            amount_ok = decision_ok and state.result.payable_amount == label.payable_amount
+            decision_hits += int(decision_ok)
+            amount_hits += int(amount_ok)
+            if state.trace_id:
+                active_tracer.write_scores(
+                    state.trace_id,
+                    [
+                        Score(f"robustness_{axis}_decision", float(decision_ok)),
+                        Score(f"robustness_{axis}_amount", float(amount_ok)),
+                    ],
+                )
+        per_axis[axis] = AxisStability(
+            decision_stability=decision_hits / n if n else 0.0,
+            amount_stability=amount_hits / n if n else 0.0,
+            n=n,
+        )
+
+    def overall(attr: str) -> float:
+        vals = [getattr(a, attr) for a in per_axis.values() if a.n]
+        return float(sum(vals) / len(vals)) if vals else 0.0
+
+    return L4Result(
+        per_axis=per_axis,
+        mean_decision_stability=overall("decision_stability"),
+        mean_amount_stability=overall("amount_stability"),
+    )
