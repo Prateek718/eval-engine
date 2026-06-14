@@ -37,6 +37,14 @@ class Settings(BaseSettings):
     # A/B model comparison.
     agent_model: str = Field(default="gemini-2.5-flash")
 
+    # --- Langfuse (observability) ---
+    # Tracing is optional: absent keys -> NullTracer, agent runs untraced.
+    # Cloud free tier in dev; host swaps to a self-hosted URL by config alone,
+    # same as the Qdrant url/path split above.
+    langfuse_public_key: str = Field(default="")
+    langfuse_secret_key: str = Field(default="")
+    langfuse_host: str = Field(default="https://cloud.langfuse.com")
+
 
 def get_settings() -> Settings:
     """Construct settings from the environment. Kept as a function so tests

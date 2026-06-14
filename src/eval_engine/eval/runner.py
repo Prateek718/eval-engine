@@ -1,7 +1,8 @@
 """Run L1 output-quality scoring over a set of adjudications.
 
 Builds a ScoreInput per claim from the agent's output, the golden label, and the
-clause texts the agent retrieved, then scores and aggregates.
+clause texts the agent retrieved, then scores and aggregates. When a run carries
+a trace_id, its three L1 scores are bonded onto that Langfuse trace.
 """
 
 import statistics
@@ -15,6 +16,7 @@ from eval_engine.eval.l1_output_quality import (
     answer_to_text,
     label_to_reference,
 )
+from eval_engine.observability.tracing import NullTracer, Score, Tracer
 
 
 @dataclass
@@ -27,6 +29,7 @@ class AgentOutput:
     reasoning: str
     retrieved_clause_texts: list[str]
     policy_terms_text: str = ""  # the looked-up policy terms; part of the evidence base
+    trace_id: str | None = None  # the run's Langfuse trace, for bonding scores to it
 
 
 @dataclass
@@ -57,15 +60,27 @@ async def run_l1(
     labels: dict[str, GoldenLabel],
     claim_texts: dict[str, str],
     scorer: OutputQualityScorer,
+    tracer: Tracer | None = None,
 ) -> L1Result:
+    active_tracer: Tracer = tracer or NullTracer()
     per_claim: dict[str, OutputQualityScores] = {}
     for out in outputs:
         label = labels[out.claim_id]
         item = _build_input(out, label, claim_texts[out.claim_id])
         try:
-            per_claim[out.claim_id] = await scorer.score(item)
+            scores = await scorer.score(item)
         except Exception:  # transient scoring/API errors skip this claim
             continue
+        per_claim[out.claim_id] = scores
+        if out.trace_id:
+            active_tracer.write_scores(
+                out.trace_id,
+                [
+                    Score("faithfulness", scores.faithfulness),
+                    Score("answer_relevancy", scores.answer_relevancy),
+                    Score("context_precision", scores.context_precision),
+                ],
+            )
 
     def mean(attr: str) -> float:
         vals = [getattr(s, attr) for s in per_claim.values()]

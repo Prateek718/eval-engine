@@ -18,6 +18,7 @@ from eval_engine.agent.tools import lookup_policy, retrieve_regulations
 from eval_engine.config import Settings
 from eval_engine.indexing.embedder import Embedder, GeminiEmbedder
 from eval_engine.indexing.indexer import make_client
+from eval_engine.observability.tracing import NullTracer, Tracer
 
 # Tool schemas advertised to the model. Kept minimal and explicit.
 _TOOL_SCHEMAS = [
@@ -94,7 +95,11 @@ def make_tool_caller(
     return call
 
 
-def build_agent(settings: Settings, model: str | None = None) -> Callable[[str, str], AgentState]:
+def build_agent(
+    settings: Settings,
+    model: str | None = None,
+    tracer: Tracer | None = None,
+) -> Callable[[str, str, str], AgentState]:
     """Construct the agent rig once and return a per-claim runner.
 
     The Qdrant client, embedder, model, and compiled graph are built a single
@@ -118,10 +123,18 @@ def build_agent(settings: Settings, model: str | None = None) -> Callable[[str, 
     chat_model = GeminiChatModel(api_key=settings.gemini_api_key, model=model_id)
     tool_caller = make_tool_caller(embedder, client, settings.qdrant_collection, schedule)
     app = build_graph(chat_model, tool_caller)
+    active_tracer: Tracer = tracer or NullTracer()
 
-    def run(claim: str, policy_id: str) -> AgentState:
-        final = app.invoke(initial_state(claim, policy_id))
-        return AgentState(**final)
+    def run(claim: str, policy_id: str, claim_id: str = "") -> AgentState:
+        with active_tracer.run_span(name="adjudication", claim_id=claim_id) as (
+            callbacks,
+            trace_id,
+        ):
+            config = {"callbacks": callbacks} if callbacks else {}
+            final = app.invoke(initial_state(claim, policy_id), config=config)
+        state = AgentState(**final)
+        state.trace_id = trace_id
+        return state
 
     return run
 
@@ -130,4 +143,4 @@ def adjudicate(claim: str, policy_id: str, settings: Settings) -> AgentState:
     """Run the agent on one claim with real Gemini + Qdrant. Returns the final
     state (decision in .result, trajectory in .tool_calls_made / .retrieved_chunk_ids).
     """
-    return build_agent(settings)(claim, policy_id)
+    return build_agent(settings)(claim, policy_id, "")
