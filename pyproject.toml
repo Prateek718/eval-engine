@@ -16,6 +16,8 @@ dependencies = [
     "ragas>=0.4.0",
     "langchain-community<0.4",
     "langfuse>=4.7.1",
+    "mlflow>=3.13.0",
+    "dvc>=3.67.1",
 ]
 
 [dependency-groups]
@@ -45,6 +47,10 @@ select = ["E", "F", "I", "UP", "B", "SIM"]
 python_version = "3.12"
 strict = true
 files = ["src"]
+
+[[tool.mypy.overrides]]
+module = "mlflow.*"
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
