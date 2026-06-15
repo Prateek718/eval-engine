@@ -45,6 +45,12 @@ class Settings(BaseSettings):
     langfuse_secret_key: str = Field(default="")
     langfuse_host: str = Field(default="https://cloud.langfuse.com")
 
+    # --- MLflow (eval-run tracking) ---
+    # Session-level eval aggregates land here for cross-run trends. URI is
+    # DagsHub's hosted server; absent it, tracking falls back to local ./mlruns.
+    mlflow_tracking_uri: str = Field(default="")
+    mlflow_experiment: str = Field(default="eval-engine")
+
 
 def get_settings() -> Settings:
     """Construct settings from the environment. Kept as a function so tests

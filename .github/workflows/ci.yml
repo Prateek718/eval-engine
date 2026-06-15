@@ -23,6 +23,15 @@ jobs:
       - name: Sync dependencies
         run: uv sync --dev
 
+      - name: Pull DVC-tracked data
+        env:
+          DAGSHUB_TOKEN: ${{ secrets.DAGSHUB_TOKEN }}
+        run: |
+          uv run dvc remote modify origin --local auth basic
+          uv run dvc remote modify origin --local user Prateek718
+          uv run dvc remote modify origin --local password "$DAGSHUB_TOKEN"
+          uv run dvc pull
+
       - name: Ruff lint
         run: uv run ruff check .
 
