@@ -51,6 +51,22 @@ class Settings(BaseSettings):
     mlflow_tracking_uri: str = Field(default="")
     mlflow_experiment: str = Field(default="eval-engine")
 
+    # --- L3 regression monitoring ---
+    # Each run writes its score sheet to current_sheet_path (overwritten); drift
+    # is scored against the frozen baseline_sheet_path when it exists. A baseline
+    # is established deliberately by promoting a chosen current sheet -- absent
+    # one, the first run records itself and scores no drift. Thresholds are the
+    # absolute mean deltas that count as drift; tuned against the first real
+    # baseline, hence overridable, not hardcoded at the call site.
+    current_sheet_path: str = Field(default="data/latest_scores.json")
+    baseline_sheet_path: str = Field(default="data/baseline_scores.json")
+    drift_threshold_score: float = Field(default=0.10, description="abs mean delta on [0,1] scores")
+    drift_threshold_step_overage: float = Field(default=0.10)
+    drift_threshold_amount_fraction: float = Field(default=0.10)
+    drift_threshold_denial_rate: float = Field(
+        default=0.065, description="~2/31 denied-share shift"
+    )
+
 
 def get_settings() -> Settings:
     """Construct settings from the environment. Kept as a function so tests
