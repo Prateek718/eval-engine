@@ -29,6 +29,7 @@ from eval_engine.eval.l2_trajectory import TrajectoryInput
 from eval_engine.eval.l3_regression import Thresholds
 from eval_engine.eval.runner import run_l2, run_l3
 from eval_engine.ingestion import parse_corpus
+from eval_engine.observability.metrics import build_metrics_publisher
 from eval_engine.observability.tracing import build_tracer
 from eval_engine.observability.tracking import build_run_tracker
 
@@ -62,6 +63,7 @@ def main() -> None:
         settings.langfuse_host,
     )
     run_tracker = build_run_tracker(settings.mlflow_tracking_uri, settings.mlflow_experiment)
+    metrics_publisher = build_metrics_publisher(settings.pushgateway_url)
 
     labels = {label.claim_id: label for label in load_golden_set()}
     claims = claims_by_id()
@@ -171,6 +173,11 @@ def main() -> None:
             metrics["regression_n_drifted"] = float(drift.n_drifted)
 
         run_tracker.log_metrics(metrics)
+
+        # Publish the same session metrics to the Pushgateway, plus L3 drift
+        # flags as per-signal gauges (no-op when no gateway is configured).
+        flags = {name: True for name in drift.flags} if drift else {}
+        metrics_publisher.publish(metrics, flags)
 
         print(f"\nscored {len(outputs)} of {len(claims)} claims", end="")
         if failures:

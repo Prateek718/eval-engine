@@ -67,6 +67,11 @@ class Settings(BaseSettings):
         default=0.065, description="~2/31 denied-share shift"
     )
 
+    # --- Prometheus (metrics publishing) ---
+    # The eval is a batch job, so runs push metrics to a Pushgateway that
+    # Prometheus scrapes. Absent URL -> NullMetricsPublisher, run unpublished.
+    pushgateway_url: str = Field(default="", description="Prometheus Pushgateway URL")
+
 
 def get_settings() -> Settings:
     """Construct settings from the environment. Kept as a function so tests
