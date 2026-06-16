@@ -26,7 +26,8 @@ from eval_engine.config import get_settings
 from eval_engine.eval import AgentOutput, RagasScorer, load_golden_set, run_l1
 from eval_engine.eval.golden import claims_by_id
 from eval_engine.eval.l2_trajectory import TrajectoryInput
-from eval_engine.eval.runner import run_l2
+from eval_engine.eval.l3_regression import Thresholds
+from eval_engine.eval.runner import run_l2, run_l3
 from eval_engine.ingestion import parse_corpus
 from eval_engine.observability.tracing import build_tracer
 from eval_engine.observability.tracking import build_run_tracker
@@ -132,16 +133,44 @@ def main() -> None:
         print(f"tool_recall:    {l2.mean_tool_recall:.3f}")
         print(f"step_overage:   {l2.mean_step_overage:.3f}")
 
-        run_tracker.log_metrics(
-            {
-                "faithfulness": result.mean_faithfulness,
-                "answer_relevancy": result.mean_answer_relevancy,
-                "context_precision": result.mean_context_precision,
-                "tool_precision": l2.mean_tool_precision,
-                "tool_recall": l2.mean_tool_recall,
-                "step_overage": l2.mean_step_overage,
-            }
+        metrics = {
+            "faithfulness": result.mean_faithfulness,
+            "answer_relevancy": result.mean_answer_relevancy,
+            "context_precision": result.mean_context_precision,
+            "tool_precision": l2.mean_tool_precision,
+            "tool_recall": l2.mean_tool_recall,
+            "step_overage": l2.mean_step_overage,
+        }
+
+        # L3: build this run's sheet, persist it, and diff against the frozen
+        # baseline. decisions are unpacked from the run's outputs so L3 needs no
+        # AgentOutput import. No baseline yet (first run) -> drift is None.
+        decisions = {o.claim_id: (o.decision, o.payable_amount) for o in outputs}
+        thresholds = Thresholds(
+            score=settings.drift_threshold_score,
+            step_overage=settings.drift_threshold_step_overage,
+            amount_fraction=settings.drift_threshold_amount_fraction,
+            denial_rate=settings.drift_threshold_denial_rate,
         )
+        drift = run_l3(
+            decisions,
+            result,
+            l2,
+            settings.current_sheet_path,
+            settings.baseline_sheet_path,
+            thresholds,
+        )
+        print("\n=== L3 regression (vs frozen baseline) ===")
+        if drift is None:
+            print("no baseline yet; recorded this run's sheet as a candidate.")
+        else:
+            print(f"drifted signals: {drift.n_drifted} {drift.flags}")
+            for col, d in drift.column_deltas.items():
+                metrics[f"regression_delta_{col}"] = d
+            metrics["regression_denial_rate_delta"] = drift.denial_rate_delta
+            metrics["regression_n_drifted"] = float(drift.n_drifted)
+
+        run_tracker.log_metrics(metrics)
 
         print(f"\nscored {len(outputs)} of {len(claims)} claims", end="")
         if failures:

@@ -19,6 +19,7 @@ import hashlib
 import statistics
 from collections.abc import Callable
 from dataclasses import dataclass
+from pathlib import Path
 
 from eval_engine.agent.graph import AgentState
 from eval_engine.eval.golden import Claim, GoldenLabel
@@ -34,6 +35,14 @@ from eval_engine.eval.l2_trajectory import (
     TrajectoryInput,
     aggregate,
     score_trajectory,
+)
+from eval_engine.eval.l3_regression import (
+    DriftResult,
+    Thresholds,
+    build_score_sheet,
+    load_sheet,
+    save_sheet,
+    score_regression,
 )
 from eval_engine.eval.l4_robustness import AXES, perturb
 from eval_engine.observability.tracing import NullTracer, Score, Tracer
@@ -225,3 +234,29 @@ def run_l4(
         mean_decision_stability=overall("decision_stability"),
         mean_amount_stability=overall("amount_stability"),
     )
+
+
+def run_l3(
+    decisions: dict[str, tuple[str, int]],
+    l1: L1Result,
+    l2: L2Result,
+    current_path: str | Path,
+    baseline_path: str | Path,
+    thresholds: Thresholds,
+) -> DriftResult | None:
+    """Build this run's score sheet, persist it, and diff it against the frozen
+    baseline.
+
+    L3 computes no scores of its own: it joins the per-claim L1/L2 results
+    (already computed for this run) with the adjudications and compares the
+    sheet to a baseline. The current sheet is always written -- so a chosen run
+    can later be promoted to baseline -- but drift is scored only once a
+    baseline exists. The first run returns None (it has nothing to drift
+    against) and simply records itself.
+    """
+    sheet = build_score_sheet(decisions, l1.per_claim, l2.per_claim)
+    save_sheet(sheet, current_path)
+    if not Path(baseline_path).exists():
+        return None
+    baseline = load_sheet(baseline_path)
+    return score_regression(baseline, sheet, thresholds)
