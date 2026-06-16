@@ -18,6 +18,7 @@ dependencies = [
     "langfuse>=4.7.1",
     "mlflow>=3.13.0",
     "dvc>=3.67.1",
+    "prometheus-client>=0.25.0",
 ]
 
 [dependency-groups]
@@ -50,6 +51,10 @@ files = ["src"]
 
 [[tool.mypy.overrides]]
 module = "mlflow.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "prometheus_client.*"
 ignore_missing_imports = true
 
 [tool.pytest.ini_options]
