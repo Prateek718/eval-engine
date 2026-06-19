@@ -1,0 +1,151 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 660" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowAccent" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#0ea5e9"/>
+    </marker>
+  </defs>
+
+  <style>
+    .title    { font-size: 22px; font-weight: 700; fill: #0f172a; }
+    .subtitle { font-size: 13px; fill: #64748b; }
+    .zoneLbl  { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .box      { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; rx: 8; }
+    .boxName  { font-size: 13px; font-weight: 600; fill: #0f172a; }
+    .boxSub   { font-size: 11px; fill: #64748b; }
+    .edge     { stroke: #64748b; stroke-width: 1.5; fill: none; }
+    .edgeAccent { stroke: #0ea5e9; stroke-width: 2; fill: none; }
+    .edgeLbl  { font-size: 10.5px; fill: #475569; }
+    .pill     { font-size: 10px; font-weight: 600; }
+  </style>
+
+  <!-- Header -->
+  <text x="40" y="42" class="title">Eval-Engine</text>
+  <text x="40" y="64" class="subtitle">Continuous, automated, production-grade evaluation of an agentic-RAG system.</text>
+
+  <!-- ================= GRADING TARGET (the frozen agent) ================= -->
+  <rect x="40" y="92" width="280" height="300" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="56" y="116" class="zoneLbl" fill="#94a3b8">Grading target · frozen</text>
+
+  <!-- Claim input -->
+  <rect x="72" y="132" width="216" height="40" class="box"/>
+  <text x="180" y="150" text-anchor="middle" class="boxName">Claim</text>
+  <text x="180" y="165" text-anchor="middle" class="boxSub">claim_text · policy_id</text>
+
+  <!-- Agent box -->
+  <rect x="72" y="196" width="216" height="120" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+  <text x="180" y="216" text-anchor="middle" class="boxName">LangGraph agent</text>
+  <text x="180" y="232" text-anchor="middle" class="boxSub">call_model → call_tools → finalize</text>
+  <text x="180" y="247" text-anchor="middle" class="boxSub">bounded loop (max 2 tool calls)</text>
+  <!-- tools -->
+  <rect x="88" y="258" width="88" height="40" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="132" y="275" text-anchor="middle" class="boxSub" font-weight="600">retrieve_</text>
+  <text x="132" y="288" text-anchor="middle" class="boxSub" font-weight="600">regulations</text>
+  <rect x="184" y="258" width="88" height="40" rx="6" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1"/>
+  <text x="228" y="275" text-anchor="middle" class="boxSub" font-weight="600">lookup_</text>
+  <text x="228" y="288" text-anchor="middle" class="boxSub" font-weight="600">policy</text>
+
+  <!-- Qdrant -->
+  <rect x="72" y="336" width="216" height="40" class="box"/>
+  <text x="180" y="354" text-anchor="middle" class="boxName">Qdrant</text>
+  <text x="180" y="369" text-anchor="middle" class="boxSub">IRDAI corpus · top_k = 4</text>
+
+  <!-- internal agent edges -->
+  <path class="edge" d="M180,172 L180,194" marker-end="url(#arrow)"/>
+  <path class="edge" d="M132,300 L132,334" marker-end="url(#arrow)"/>
+  <path class="edge" d="M150,336 C150,322 150,312 150,302" marker-end="url(#arrow)" opacity="0"/>
+
+  <!-- Adjudication output -->
+  <rect x="356" y="196" width="150" height="120" rx="8" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
+  <text x="431" y="222" text-anchor="middle" class="boxName" fill="#065f46">Adjudication</text>
+  <text x="431" y="244" text-anchor="middle" class="boxSub">decision</text>
+  <text x="431" y="260" text-anchor="middle" class="boxSub">payable_amount</text>
+  <text x="431" y="276" text-anchor="middle" class="boxSub">governing_clauses</text>
+  <text x="431" y="292" text-anchor="middle" class="boxSub">reasoning</text>
+
+  <!-- agent -> adjudication -->
+  <path class="edgeAccent" d="M288,256 L354,256" marker-end="url(#arrowAccent)"/>
+  <text x="321" y="248" text-anchor="middle" class="edgeLbl">1 run / claim</text>
+
+  <!-- ================= EVAL SYSTEM (the deliverable) ================= -->
+  <rect x="356" y="92" width="524" height="540" rx="12" fill="#f0f9ff" stroke="#bae6fd" stroke-width="1.5"/>
+  <text x="372" y="116" class="zoneLbl" fill="#0284c7">Eval system · the deliverable</text>
+
+  <!-- Reference artifacts -->
+  <rect x="540" y="132" width="150" height="52" class="box"/>
+  <text x="615" y="152" text-anchor="middle" class="boxName">Golden set</text>
+  <text x="615" y="168" text-anchor="middle" class="boxSub">human-reviewed · DVC</text>
+  <rect x="706" y="132" width="150" height="52" class="box"/>
+  <text x="781" y="152" text-anchor="middle" class="boxName">Baseline</text>
+  <text x="781" y="168" text-anchor="middle" class="boxSub">frozen scores · DVC</text>
+
+  <!-- Eval layers row -->
+  <rect x="372" y="330" width="116" height="64" class="box"/>
+  <text x="430" y="354" text-anchor="middle" class="boxName">L1 · Ragas</text>
+  <text x="430" y="370" text-anchor="middle" class="boxSub">faithfulness,</text>
+  <text x="430" y="383" text-anchor="middle" class="boxSub">relevancy, precision</text>
+
+  <rect x="500" y="330" width="116" height="64" class="box"/>
+  <text x="558" y="354" text-anchor="middle" class="boxName">L2 · trajectory</text>
+  <text x="558" y="370" text-anchor="middle" class="boxSub">tool precision /</text>
+  <text x="558" y="383" text-anchor="middle" class="boxSub">recall, overage</text>
+
+  <rect x="628" y="330" width="116" height="64" class="box"/>
+  <text x="686" y="354" text-anchor="middle" class="boxName">L3 · regression</text>
+  <text x="686" y="370" text-anchor="middle" class="boxSub">threshold drift</text>
+  <text x="686" y="383" text-anchor="middle" class="boxSub">vs baseline</text>
+
+  <rect x="756" y="330" width="100" height="64" class="box"/>
+  <text x="806" y="354" text-anchor="middle" class="boxName">L4 · robust</text>
+  <text x="806" y="370" text-anchor="middle" class="boxSub">4 perturb.</text>
+  <text x="806" y="383" text-anchor="middle" class="boxSub">axes</text>
+
+  <!-- adjudication -> eval layers (fan) -->
+  <path class="edgeAccent" d="M506,276 C520,300 430,306 430,328" marker-end="url(#arrowAccent)"/>
+  <path class="edgeAccent" d="M506,266 C540,290 558,306 558,328" marker-end="url(#arrowAccent)"/>
+  <path class="edgeAccent" d="M506,260 C610,280 686,304 686,328" marker-end="url(#arrowAccent)"/>
+  <path class="edgeAccent" d="M506,252 C650,270 806,300 806,328" marker-end="url(#arrowAccent)"/>
+
+  <!-- golden set -> layers (reference) -->
+  <path class="edge" d="M600,184 C560,250 470,300 445,328" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
+  <text x="512" y="250" class="edgeLbl">reference</text>
+  <!-- baseline -> L3 -->
+  <path class="edge" d="M781,184 C770,250 700,300 692,328" marker-end="url(#arrow)" stroke-dasharray="4 3"/>
+  <text x="772" y="250" class="edgeLbl">diff</text>
+
+  <!-- Sinks row -->
+  <rect x="372" y="448" width="148" height="60" class="box"/>
+  <text x="446" y="472" text-anchor="middle" class="boxName">Langfuse</text>
+  <text x="446" y="489" text-anchor="middle" class="boxSub">per-claim traces</text>
+  <text x="446" y="501" text-anchor="middle" class="boxSub">+ token cost</text>
+
+  <rect x="536" y="448" width="148" height="60" class="box"/>
+  <text x="610" y="472" text-anchor="middle" class="boxName">MLflow</text>
+  <text x="610" y="489" text-anchor="middle" class="boxSub">run-level metric</text>
+  <text x="610" y="501" text-anchor="middle" class="boxSub">history</text>
+
+  <rect x="700" y="448" width="156" height="60" class="box"/>
+  <text x="778" y="470" text-anchor="middle" class="boxName">Pushgateway →</text>
+  <text x="778" y="485" text-anchor="middle" class="boxName">Prometheus</text>
+  <text x="778" y="500" text-anchor="middle" class="boxSub">eval_* gauges</text>
+
+  <!-- layers -> sinks -->
+  <path class="edge" d="M430,394 C430,418 446,424 446,446" marker-end="url(#arrow)"/>
+  <path class="edge" d="M558,394 C558,418 610,424 610,446" marker-end="url(#arrow)"/>
+  <path class="edge" d="M686,394 C686,418 778,424 778,446" marker-end="url(#arrow)"/>
+  <path class="edge" d="M806,394 C806,420 800,432 790,446" marker-end="url(#arrow)"/>
+
+  <!-- Grafana -->
+  <rect x="700" y="548" width="156" height="56" rx="8" fill="#fff7ed" stroke="#f97316" stroke-width="1.5"/>
+  <text x="778" y="572" text-anchor="middle" class="boxName" fill="#9a3412">Grafana</text>
+  <text x="778" y="589" text-anchor="middle" class="boxSub">quality · drift · accuracy</text>
+  <path class="edge" d="M778,508 L778,546" marker-end="url(#arrow)"/>
+
+  <!-- CI gate note -->
+  <rect x="372" y="548" width="296" height="56" rx="8" fill="#fafafa" stroke="#e2e8f0" stroke-width="1.5" stroke-dasharray="5 4"/>
+  <text x="388" y="570" class="boxName" fill="#475569">Hermetic CI gates (Pytest)</text>
+  <text x="388" y="586" class="boxSub">golden-set + baseline integrity</text>
+  <text x="388" y="599" class="boxSub">no agent, no network</text>
+</svg>
