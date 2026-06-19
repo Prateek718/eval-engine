@@ -1,0 +1,7 @@
+apiVersion: 1
+
+providers:
+  - name: eval-engine
+    type: file
+    options:
+      path: /etc/grafana/provisioning/dashboards

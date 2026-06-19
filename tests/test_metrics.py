@@ -41,6 +41,6 @@ def test_real_publisher_pushes_means_and_drift_flag_gauges(monkeypatch) -> None:
 
     assert captured["job"] == "eval-engine"
     body = captured["body"]
-    assert "mean_faithfulness 0.23" in body
+    assert "eval_mean_faithfulness 0.23" in body
     assert "eval_drift_faithfulness 1.0" in body  # flagged -> 1
     assert "eval_drift_tool_precision 0.0" in body  # not flagged -> 0

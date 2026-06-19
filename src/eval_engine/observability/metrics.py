@@ -57,7 +57,7 @@ class PrometheusMetricsPublisher:
         # job, so the gateway reflects the latest run, not a running sum.
         registry = CollectorRegistry()
         for name, value in metrics.items():
-            gauge = Gauge(name, f"eval metric: {name}", registry=registry)
+            gauge = Gauge(f"eval_{name}", f"eval metric: {name}", registry=registry)
             gauge.set(value)
         # Drift flags as 0/1 gauges, so a Grafana panel/alert can fire per signal.
         for name, flagged in flags.items():

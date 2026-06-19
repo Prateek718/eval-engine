@@ -1,0 +1,61 @@
+{
+  "title": "Eval Engine",
+  "uid": "eval-engine",
+  "schemaVersion": 39,
+  "tags": ["eval-engine"],
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Output Quality (Ragas)",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "eval-prometheus" },
+      "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        { "refId": "A", "expr": "eval_mean_faithfulness", "legendFormat": "Faithfulness" },
+        { "refId": "B", "expr": "eval_mean_answer_relevancy", "legendFormat": "Answer relevancy" },
+        { "refId": "C", "expr": "eval_mean_context_precision", "legendFormat": "Context precision" }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": { "drawStyle": "line", "lineWidth": 2, "fillOpacity": 0 },
+          "min": 0,
+          "max": 1
+        },
+        "overrides": []
+      }
+    },
+    {
+      "id": 2,
+      "title": "Drift vs Baseline",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "eval-prometheus" },
+      "gridPos": { "x": 12, "y": 0, "w": 12, "h": 8 },
+      "targets": [
+        { "refId": "A", "expr": "eval_drift_faithfulness", "legendFormat": "Faithfulness" },
+        { "refId": "B", "expr": "eval_drift_denial_rate", "legendFormat": "Denial rate" }
+      ],
+      "options": {
+        "colorMode": "background",
+        "reduceOptions": { "calcs": ["lastNotNull"] }
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "value": null, "color": "green" },
+              { "value": 1, "color": "red" }
+            ]
+          },
+          "mappings": [
+            { "type": "value", "options": { "0": { "text": "OK" }, "1": { "text": "DRIFT" } } }
+          ]
+        },
+        "overrides": []
+      }
+    }
+  ]
+}
