@@ -135,6 +135,15 @@ def main() -> None:
         print(f"tool_recall:    {l2.mean_tool_recall:.3f}")
         print(f"step_overage:   {l2.mean_step_overage:.3f}")
 
+        # Decision accuracy: the headline business metric -- fraction of scored
+        # claims whose decision matches the golden label. Computed over the
+        # claims that produced a result (failures are excluded from the rate, not
+        # counted as wrong, so a transient API error doesn't depress accuracy).
+        correct = sum(1 for o in outputs if o.decision == labels[o.claim_id].decision.value)
+        decision_accuracy = correct / len(outputs) if outputs else 0.0
+        print("\n=== Decision accuracy ===")
+        print(f"decision_accuracy: {decision_accuracy:.3f} ({correct}/{len(outputs)})")
+
         metrics = {
             "faithfulness": result.mean_faithfulness,
             "answer_relevancy": result.mean_answer_relevancy,
@@ -142,6 +151,7 @@ def main() -> None:
             "tool_precision": l2.mean_tool_precision,
             "tool_recall": l2.mean_tool_recall,
             "step_overage": l2.mean_step_overage,
+            "decision_accuracy": decision_accuracy,
         }
 
         # L3: build this run's sheet, persist it, and diff against the frozen
